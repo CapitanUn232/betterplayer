@@ -377,10 +377,10 @@ internal class BetterPlayer(
     private fun buildMediaSource(
         uri: Uri,
         mediaDataSourceFactory: DataSource.Factory,
-        formatHint: String?,
         cacheKey: String?,
         context: Context
     ): MediaSource {
+        var formatHint = FORMAT_DASH
         val type: Int
         if (formatHint == null) {
             var lastPathSegment = uri.lastPathSegment
