@@ -134,7 +134,7 @@ internal class BetterPlayer(
         isInitialized = false
         val uri = Uri.parse(dataSource)
         var dataSourceFactory: DataSource.Factory?
-        val userAgent = getUserAgent(headers)
+        val userAgent = "ExoPlayerLib"
         if (licenseUrl != null && licenseUrl.isNotEmpty()) {
             val httpMediaDrmCallback =
                 HttpMediaDrmCallback(licenseUrl, DefaultHttpDataSource.Factory())
