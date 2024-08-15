@@ -171,14 +171,31 @@ internal class BetterPlayer(
                 Log.e(TAG, "Protected content not supported on API levels below 18")
                 null
             } else {
-    
+                /* 
                 val clearKeyUUID: UUID = UUID.fromString("e2719d58-a985-b3c9-781a-b030af78d30e")
                 val mediaDrm = FrameworkMediaDrm.newInstance(clearKeyUUID)
                 DefaultDrmSessionManager.Builder()
                     .setUuidAndExoMediaDrmProvider(
                         clearKeyUUID,
                         FrameworkMediaDrm.DEFAULT_PROVIDER
-                    ).build(LocalMediaDrmCallback(clearKey.toByteArray()))
+                    ).build(LocalMediaDrmCallback(clearKey.toByteArray()))*/
+                    val clearKeyUUID = UUID.fromString("e2719d58-a985-b3c9-781a-b030af78d30e")
+val mediaDrm = FrameworkMediaDrm.newInstance(clearKeyUUID)
+
+try {
+    val drmSessionManager = DefaultDrmSessionManager.Builder()
+        .setUuidAndExoMediaDrmProvider(clearKeyUUID, FrameworkMediaDrm.DEFAULT_PROVIDER)
+        .build(object : DrmSessionManager.DrmSessionManagerFallbackProvider {
+            override fun getFallbackSessionManager(uuid: UUID?): DrmSessionManager<*>? {
+                // Return a fallback session manager or null if you want to bypass
+                return null
+            }
+        })
+    // Set up ExoPlayer with this drmSessionManager
+} catch (e: UnsupportedDrmException) {
+    e.printStackTrace()
+    // Handle unsupported DRM exception
+}
             }
         } else {
             drmSessionManager = null
