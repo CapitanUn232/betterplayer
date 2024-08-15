@@ -57,8 +57,9 @@ import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.drm.DrmSessionManagerProvider
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
+import com.google.android.exoplayer2.source.BaseMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride
-import com.google.android.exoplayer2.trackselection.TrackSelectionOverrides
+import com.google.android.exoplayer2.trackselection.TrackSelectionOverride
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSource
 import com.google.android.exoplayer2.util.Util
@@ -198,10 +199,15 @@ internal class BetterPlayer(
         }
         val mediaSource = buildMediaSource(uri, dataSourceFactory, cacheKey, context)
         if (overriddenDuration != 0L) {
-            val clippingMediaSource = ClippingMediaSource(mediaSource, 0, overriddenDuration * 1000)
-            exoPlayer?.setMediaSource(clippingMediaSource)
+            val clippingMediaSource =
+                mediaSource?.let { ClippingMediaSource(it, 0, overriddenDuration * 1000) }
+            if (clippingMediaSource != null) {
+                exoPlayer?.setMediaSource(clippingMediaSource)
+            }
         } else {
-            exoPlayer?.setMediaSource(mediaSource)
+            if (mediaSource != null) {
+                exoPlayer?.setMediaSource(mediaSource)
+            }
         }
         exoPlayer?.prepare()
         result.success(null)
@@ -382,7 +388,7 @@ internal class BetterPlayer(
         mediaDataSourceFactory: DataSource.Factory,
         cacheKey: String?,
         context: Context
-    ): MediaSource {
+    ): BaseMediaSource? {
         var formatHint = FORMAT_DASH
         val type: Int
         if (formatHint == null) {
@@ -411,27 +417,35 @@ internal class BetterPlayer(
             drmSessionManagerProvider = DrmSessionManagerProvider { drmSessionManager }
         }
         return when (type) {
-            C.TYPE_SS -> SsMediaSource.Factory(
-                DefaultSsChunkSource.Factory(mediaDataSourceFactory),
-                DefaultDataSource.Factory(context, mediaDataSourceFactory)
-            )
-                .setDrmSessionManagerProvider(drmSessionManagerProvider)
-                .createMediaSource(mediaItem)
-            C.TYPE_DASH -> DashMediaSource.Factory(
-                DefaultDashChunkSource.Factory(mediaDataSourceFactory),
-                DefaultDataSource.Factory(context, mediaDataSourceFactory)
-            )
-                .setDrmSessionManagerProvider(drmSessionManagerProvider)
-                .createMediaSource(mediaItem)
-            C.TYPE_HLS -> HlsMediaSource.Factory(mediaDataSourceFactory)
-                .setDrmSessionManagerProvider(drmSessionManagerProvider)
-                .createMediaSource(mediaItem)
-            C.TYPE_OTHER -> ProgressiveMediaSource.Factory(
-                mediaDataSourceFactory,
-                DefaultExtractorsFactory()
-            )
-                .setDrmSessionManagerProvider(drmSessionManagerProvider)
-                .createMediaSource(mediaItem)
+            C.TYPE_SS -> drmSessionManagerProvider?.let {
+                SsMediaSource.Factory(
+                    DefaultSsChunkSource.Factory(mediaDataSourceFactory),
+                    DefaultDataSource.Factory(context, mediaDataSourceFactory)
+                )
+                    .setDrmSessionManagerProvider(it)
+                    .createMediaSource(mediaItem)
+            }
+            C.TYPE_DASH -> drmSessionManagerProvider?.let {
+                DashMediaSource.Factory(
+                    DefaultDashChunkSource.Factory(mediaDataSourceFactory),
+                    DefaultDataSource.Factory(context, mediaDataSourceFactory)
+                )
+                    .setDrmSessionManagerProvider(it)
+                    .createMediaSource(mediaItem)
+            }
+            C.TYPE_HLS -> drmSessionManagerProvider?.let {
+                HlsMediaSource.Factory(mediaDataSourceFactory)
+                    .setDrmSessionManagerProvider(it)
+                    .createMediaSource(mediaItem)
+            }
+            C.TYPE_OTHER -> drmSessionManagerProvider?.let {
+                ProgressiveMediaSource.Factory(
+                    mediaDataSourceFactory,
+                    DefaultExtractorsFactory()
+                )
+                    .setDrmSessionManagerProvider(it)
+                    .createMediaSource(mediaItem)
+            }
             else -> {
                 throw IllegalStateException("Unsupported type: $type")
             }
@@ -511,12 +525,12 @@ internal class BetterPlayer(
         val audioComponent = exoPlayer?.audioComponent ?: return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             audioComponent.setAudioAttributes(
-                AudioAttributes.Builder().setContentType(C.CONTENT_TYPE_MOVIE).build(),
+                AudioAttributes.Builder().setContentType(C.AUDIO_CONTENT_TYPE_MOVIE).build(),
                 !mixWithOthers
             )
         } else {
             audioComponent.setAudioAttributes(
-                AudioAttributes.Builder().setContentType(C.CONTENT_TYPE_MUSIC).build(),
+                AudioAttributes.Builder().setContentType(C.AUDIO_CONTENT_TYPE_MUSIC).build(),
                 !mixWithOthers
             )
         }
@@ -710,15 +724,6 @@ internal class BetterPlayer(
         if (mappedTrackInfo != null) {
             val builder = trackSelector.parameters.buildUpon()
                 .setRendererDisabled(rendererIndex, false)
-                .setTrackSelectionOverrides(
-                    TrackSelectionOverrides.Builder().addOverride(
-                        TrackSelectionOverrides.TrackSelectionOverride(
-                            mappedTrackInfo.getTrackGroups(
-                                rendererIndex
-                            ).get(groupIndex)
-                        )
-                    ).build()
-                )
 
             trackSelector.setParameters(builder)
         }
