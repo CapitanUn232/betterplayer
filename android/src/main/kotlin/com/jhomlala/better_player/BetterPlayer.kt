@@ -171,9 +171,10 @@ internal class BetterPlayer(
                 Log.e(TAG, "Protected content not supported on API levels below 18")
                 null
             } else {
+                val clearKeyUUID: UUID = UUID.fromString("e2719d58-a985-b3c9-781a-b030af78d30e")
                 DefaultDrmSessionManager.Builder()
                     .setUuidAndExoMediaDrmProvider(
-                        C.CLEARKEY_UUID,
+                        clearKeyUUID,
                         FrameworkMediaDrm.DEFAULT_PROVIDER
                     ).build(LocalMediaDrmCallback(clearKey.toByteArray()))
             }
