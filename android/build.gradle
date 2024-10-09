@@ -1,12 +1,5 @@
 group 'com.jhomlala.better_player.better_player'
 version '1.0-SNAPSHOT'
-	dependencyResolutionManagement {
-		repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-		repositories {
-			mavenCentral()
-			maven { url 'https://jitpack.io' }
-		}
-	}
 buildscript {
     ext.exoPlayerVersion = "2.17.1"
     ext.lifecycleVersion = "2.4.0-beta01"
@@ -17,6 +10,7 @@ buildscript {
     ext.kotlinVersion = "1.5.31"
 
     repositories {
+        maven { url 'https://jitpack.io' }
         google()
         mavenCentral()
     }
