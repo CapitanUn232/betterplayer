@@ -1,6 +1,12 @@
 group 'com.jhomlala.better_player.better_player'
 version '1.0-SNAPSHOT'
-
+	dependencyResolutionManagement {
+		repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+		repositories {
+			mavenCentral()
+			maven { url 'https://jitpack.io' }
+		}
+	}
 buildscript {
     ext.exoPlayerVersion = "2.17.1"
     ext.lifecycleVersion = "2.4.0-beta01"
@@ -52,6 +58,18 @@ android {
     }
 
     dependencies {
+        implementation "com.github.CapitanUn232:ExoPlayer:exoplayer-core:$exoPlayerVersion"
+        implementation "com.github.CapitanUn232:ExoPlayer:exoplayer-hls:$exoPlayerVersion"
+        implementation "com.github.CapitanUn232:ExoPlayer:exoplayer-dash:$exoPlayerVersion"
+        implementation "com.github.CapitanUn232:ExoPlayer:exoplayer-smoothstreaming:$exoPlayerVersion"
+        implementation "com.github.CapitanUn232:ExoPlayer:exoplayer-ui:$exoPlayerVersion"
+        implementation "com.google.android.exoplayer:extension-mediasession:$exoPlayerVersion"
+        implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion"
+        implementation "androidx.lifecycle:lifecycle-common:$lifecycleVersion"
+        implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion"
+        implementation "androidx.annotation:annotation:$annotationVersion"
+        implementation "androidx.work:work-runtime:$workVersion"
+        /*
         implementation "com.google.android.exoplayer:exoplayer-core:$exoPlayerVersion"
         implementation "com.google.android.exoplayer:exoplayer-hls:$exoPlayerVersion"
         implementation "com.google.android.exoplayer:exoplayer-dash:$exoPlayerVersion"
@@ -62,7 +80,7 @@ android {
         implementation "androidx.lifecycle:lifecycle-common:$lifecycleVersion"
         implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion"
         implementation "androidx.annotation:annotation:$annotationVersion"
-        implementation "androidx.work:work-runtime:$workVersion"
+        implementation "androidx.work:work-runtime:$workVersion"*/
     }
 }
 
