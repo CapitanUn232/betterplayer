@@ -134,7 +134,7 @@ internal class BetterPlayer(
         isInitialized = false
         val uri = Uri.parse(dataSource)
         var dataSourceFactory: DataSource.Factory?
-        val userAgent = "Roku/DVP-12.0"
+        val userAgent = "Mozilla/5.0 (Linux; Android) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.109 Safari/537.36 CrKey/1.54.248666"
         if (licenseUrl != null && licenseUrl.isNotEmpty()) {
             val httpMediaDrmCallback =
                 HttpMediaDrmCallback(licenseUrl, DefaultHttpDataSource.Factory())
